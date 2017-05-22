@@ -35,6 +35,25 @@ int main()
   PID pid;
   // TODO: Initialize the pid variable.
 
+  /*
+  P- Proportional Gain determines the correction in proportion to the error. Having high P allows to you to drive in curvy track 
+  and small P tends to drive off the track when it is a turn. However, high P tends to have a lot of oscillation.
+
+  I- Integral Gain is used to remove the stead state error. Having high I helps bring the car back on track quickly when the car 
+  has deviated a lot. However, high I also tends to amplify the oscillation.
+
+  D--Derivative Gain is used to damp the overshoots. Having high D will cause overdamp and will cause the vehicle long time to 
+  correct for the offset. Having low D tends to cause the vehilce oscillate.
+
+  To determine the P,D and I constants for the vehicle in the simulation, I used manual turning.
+
+  The parameters I found to produce the most stable results are: Kp = 1.05 Ki= 0.01 Kd = 18.5
+
+  */
+  
+  pid.Init(1.05, 0.01, 18.5);
+
+ 
   h.onMessage([&pid](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length, uWS::OpCode opCode) {
     // "42" at the start of the message means there's a websocket message event.
     // The 4 signifies a websocket message
@@ -57,7 +76,19 @@ int main()
           * NOTE: Feel free to play around with the throttle and speed. Maybe use
           * another PID controller to control the speed!
           */
-          
+          pid.UpdateError(cte);
+
+          steer_value = -1* pid.TotalError();
+
+          if (steer_value > 1) 
+          {
+              steer_value =1;
+          };
+          if (steer_value < -1) 
+          {
+              steer_value =-1;
+          };
+
           // DEBUG
           std::cout << "CTE: " << cte << " Steering Value: " << steer_value << std::endl;
 
@@ -112,3 +143,47 @@ int main()
   }
   h.run();
 }
+
+/*
+std::vector<double> twiddle(double tol= 0.005)
+{
+  std::vector<double> p = {0,0,0};
+  std::vector<double> dp = {1,1,1};
+
+  double best_err = run(p);
+
+  while (dp[0]+dp[1]+dp[2] >tol)
+  {
+    for (int i =0; i<3; i++)
+    {
+      p[i] += dp[i];
+      double err = run(p);
+
+      if (err < best_err)
+      {
+        best_err = err;
+        dp[i] *= 1.1;
+      }
+      else
+      {
+        p[i] -= 2 * dp[i];
+        err=run(p);
+
+        if (err<best_err)
+        {
+          best_err = err;
+          dp[i] *= 1.1;
+        }
+        else
+        {
+          p[i] += dp[i];
+          dp[i] *= 0.9;
+        }
+      }
+    }
+  }
+
+  return p;
+}
+*/
+
