@@ -1,3 +1,18 @@
+# Parameter Selection
+
+P- Proportional Gain determines the correction in proportion to the error.  Having high P allows to you to drive in curvy track and small P tends to drive off the track when it is a turn.  However, high P tends to have a lot of oscillation.
+
+I- Integral Gain is used to remove the stead state error.  Having high I helps bring the car back on track quickly when the car has deviated a lot.  However, high I also tends to amplify the oscillation.
+
+D--Derivative Gain is used to damp the overshoots. Having high D will cause overdamp and will cause the vehicle long time to correct for the offset. Having low D tends to cause the vehilce oscillate. 
+
+To determine the P,D and I constants for the vehicle in the simulation, I used manual turning.
+
+The parameters I found to produce the most stable results are:
+Kp = 1.05
+Ki= 0.01
+Kd = 18.5
+
 # CarND-Controls-PID
 Self-Driving Car Engineer Nanodegree Program
 
